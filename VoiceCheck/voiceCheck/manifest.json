@@ -1,0 +1,14 @@
+{
+	"manifest_version": 2,
+	"name": "VoiceCheck",
+	"description": "Moderate your voice level and trash talk.",
+	"version": "1",
+	"author": "LofiLab",
+	"options_page": "home.html",
+	"browser_action": {
+		"default_icon": "images/headset-icon.png",
+		"default_title": "VoiceCheck",
+		"default_popup": "popup.html"
+	},
+	"permissions": ["activeTab"]
+}

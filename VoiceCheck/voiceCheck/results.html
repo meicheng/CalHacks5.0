@@ -1,0 +1,63 @@
+<!-- Document: results.html
+
+     Purpose: This is a static screen, which was meant to show
+              user's current percentile of toxicity, relative to
+              other users/players. This also has a button that
+              refers you to external resources to improve the
+              user's toxic behavior...or go back to the main
+              menu page.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css?family=Averia+Sans+Libre|Nunito" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+<body>
+
+    <!-- Navigation bar -->
+    <div id="nav">
+        <ul>
+            <div style="float: left;">
+                <li><a href="home.html"><button>Home</button></a></li>
+                <li><a href="resources.html"><button>Resources</button></a><li>
+            </div>
+            <div style="float: right;">
+                <li>
+                    <a href="profile.html">
+                        <img src="profile.png" width="40" height="auto" style="margin-top: 6px; margin-left: 5px;">
+                    </a>
+                </li>
+                <li>
+                    <a href="profile.html">
+                        <button>Profile</button>
+                    </a>
+                </li>
+                <li><a href="index.html"><button style="margin-right: 7px;">Logout</button></a></li>
+            </div>
+        </ul>
+    </div>
+
+<!-- Body -->
+    <div style="text-align: center;">
+        <br></br>
+   <!-- Text that is hard coded to show the percentile of the user's toxicity
+        relative to others. A button is linked below for resources. -->
+        <h1>Results</h1>
+        <h2>Score: 89.3</h2>
+        <p>You score in the 89th percentile of players. You're fairly toxic.</p>
+        <p>Improve your gameplay by improving your behavior!</p>
+        <p>Check out our resources -> <a href="resources.html"><button>Resources</button></a>
+        <br></br>
+        <a href="home.html"><button>Return to Home Page</button></a>
+        </p>
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+</script>
+<script type="application/javascript" src="js_files/quizQuestions.js"></script>
+</html>

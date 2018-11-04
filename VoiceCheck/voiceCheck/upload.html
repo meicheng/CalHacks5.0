@@ -1,0 +1,181 @@
+<!--
+
+
+This is the page that extracts the entire text that the user inputs in the text box.
+Then, the text would be analyzed and results would be shown, detailing sentiment
+scores and coefficients of specific emotions that indicate what emotion the text
+is most aligned to. This functionality is similar to audio.html, except that this
+would only take inputted text and not a whole audio file.
+
+If the user can't record audio of just themselves playing (or they
+want to rewrite what was shown in the chat log), he or she has the
+option to type in those words directly. This way, our users are
+not restrained to just uploading audio. We give the same kind of
+results than we would for audio - a sentiment score, emotional score
+for 5 emotions, and a useful pie chart that breaks down how much
+emotion there is in the text relative to each other. The numbers
+indicate relevance - how likely it is between 0 and 1 (0 meaning no correlation, 1 meaning high correlation) that the words have that emotion.
+
+Because we use AJAX, there are separate buttons to start analyzing
+text and then getting the scores. Ideally we could merge these
+two buttons in the future, but for now they are simply POST and GET
+requests.-->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Tab title, main.css import, allow use of Plotly -->
+    <title>Choose/Upload</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+</head>
+
+<body>
+    <!-- Navigation bar -->
+    <div id="nav">
+        <ul>
+            <div style="float: left;">
+                <li><a href="home.html"><button>Home</button></a></li>
+                <li><a href="resources.html"><button>Resources</button></a><li>
+            </div>
+            <div style="float: right;">
+                <li>
+                    <a href="profile.html">
+                        <img src="profile.png" width="40" height="auto" style="margin-top: 6px; margin-left: 5px;">
+                    </a>
+                </li>
+                <li>
+                    <a href="profile.html">
+                        <button>Profile</button>
+                    </a>
+                </li>
+                <li><a href="index.html"><button style="margin-right: 7px;">Logout</button></a></li>
+            </div>
+        </ul>
+    </div>
+
+    <!-- Text Upload - the text input, POST request button (Analyze
+         Text) and GET button (Get Text)-->
+    <br></br>
+
+    <!-- Body -->
+    <div style="text-align: center;">
+          <br></br><br></br>
+          <h1>Type what you said</h1>
+          <textarea id="typeTextBox"></textarea>
+          <br>
+          <div id="buttons">
+            <button id="typeTextButton">Analyze Text</button>
+            <button id="getTextButton">Get Text</button>
+          </div>
+          <br></br>
+          <div id="status"></div>
+          <div id="results"></div>
+          <div id="emotionTextPie"></div>
+          <a href="home.html">
+              <button>Return to Home Page</button>
+          </a>
+    </div>
+</body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="application/javascript" src="js_files/quizQuestions.js"></script>
+
+<!-- All scripting to show content upon click and communicate with server.js -->
+<script type="text/javascript">
+    $(document).ready(() => {
+
+        /*GET request will append JSON string to HTML div. Calls from the server.js and accesses our sqlite database.*/
+        $('#getTextButton').click(() => {
+        /* This ajax call will add more elements in the existing page, showing the data
+           and updating the page of what data the Text-to-Speech API backend has pulled
+           from analyzing the text. Additionally, there is data visualization of the
+           results returned, in the form of a pie chart.*/
+            $.ajax({
+              url: 'text',
+              type: 'GET',
+              dataType : 'json',
+              success: (data) => {
+                console.log('You received some data!', data);
+                console.log($('#typeTextBox').val());
+                $('#status').empty();
+                $('#results').empty();
+                $('#results').append('<div class="data"><h2>' +  "Text Entered" +'</h2></div>');
+                $('#results').append($('#typeTextBox').val());
+                var total, sad_percent, joy_percent, disgust_percent, fear_percent, anger_percent;
+
+                /*Where all the text is extracted and appended to the HTML div.*/
+                for(let key in data){
+                      if(key == "sentiment"){
+                        $('#results').append('<div class="data"><h2>' +  "Sentiment" +'</h2></div>');
+                        $('#results').append('<div class="data"><h4>' + 'Score: ' + data.sentiment.document.score +'</h4></div>');
+                          $('#results').append('<div class="data"><h4>' + 'Label: ' + data.sentiment.document.label +'</h4></div>');
+                      }
+                      if(key == "emotion"){
+                        $('#results').append('<div class="data"><h2>' + "Emotion" +'</h2></div>');
+                        $('#results').append('<div class="data"><h4>' + 'Sadness: ' + data.emotion.document.emotion.sadness +'</h4></div>');
+                        $('#results').append('<div class="data"><h4>' + 'Joy: ' + data.emotion.document.emotion.joy +'</h4></div>');
+                        $('#results').append('<div class="data"><h4>' + 'Disgust: ' + data.emotion.document.emotion.disgust +'</h4></div>');
+                        $('#results').append('<div class="data"><h4>' + 'Fear: ' + data.emotion.document.emotion.fear +'</h4></div>');
+                        $('#results').append('<div class="data"><h4>' + 'Anger: ' + data.emotion.document.emotion.anger +'</h4></div>');
+
+                        /*Calculates percentage of pie chart for each emotion.*/
+                        total = (data.emotion.document.emotion.sadness + data.emotion.document.emotion.joy + data.emotion.document.emotion.disgust + data.emotion.document.emotion.fear + data.emotion.document.emotion.anger);
+                        sad_percent = (data.emotion.document.emotion.sadness/total);
+                        joy_percent = (data.emotion.document.emotion.joy/total);
+                        disgust_percent = (data.emotion.document.emotion.disgust/total);
+                        fear_percent = (data.emotion.document.emotion.fear/total);
+                        anger_percent = (data.emotion.document.emotion.anger/total);
+                      }
+                  }
+
+                  var data = [{
+                    values: [sad_percent, joy_percent, disgust_percent, fear_percent, anger_percent],
+                    labels: ['Sadness', 'Joy', 'Disgust', 'Fear', 'Anger'],
+                    type: 'pie'
+                  }];
+
+                  var layout= {
+                    plot_bgcolor:"rgba(0,0,0,0)",
+                    paper_bgcolor:"rgba(0,0,0,0)",
+                    font: {
+                      family: "FiraSans-Regular",
+                      size: 18,
+                      color: "white"
+                    }
+                  }
+
+                  Plotly.newPlot('emotionTextPie', data, layout);
+                  }
+
+          })
+        });
+
+        /*POST request will send text to our sqlite database through server.js. Will generate a status once text is sent - either is fails to submit or submits successfully. Status text is appended to the #status HTML div.*/
+        $('#typeTextButton').click(() => {
+            $.ajax({
+              // all URLs are relative to http://localhost:3000/
+              url: 'text',
+              type: 'POST', // <-- this is POST, not GET
+              data: {
+                      words: $('#typeTextBox').val(),
+                    },
+              error: function(){
+                console.log('Failed to submit text.');
+                $('#status').html('Failed to submit text. Please try again.');
+              },
+              success: (data) => {
+                console.log('Successfully submitted text!');
+                $('#status').html('Successfully submitted! Press "Get Text" to read results.');
+                $('#results').empty();
+              }
+            });
+          });
+        });
+</script>
+</html>

@@ -1,0 +1,90 @@
+<!-- Document: index.html
+
+     Purpose: This is the main screen that the user would first see.
+              Although the native account login and sign-up functionalities
+              have remained stagnant and unusable, both the login and the
+              Google Sign-In button can be used to sign in (the login
+              button can be redirected for the sake of user testing).
+-->
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="180518226106-btugctlhvrq5u3argos1st6jb7b2c05g.apps.googleusercontent.com">
+    <title>Login</title>
+    <link href="https://fonts.googleapis.com/css?family=Averia+Sans+Libre|Nunito" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+</head>
+
+<!-- Home screen body and text. -->
+<body style="text-align: center;" id="c">
+    <br></br>
+    <br></br>
+    <br></br>
+    <br></br>
+
+<!-- Welcome title of website: Toxicon. Description is included below. -->
+    <h1>Welcome to Toxicon</h1>
+    <h2>Test your toxicity!</h2>
+
+<!-- Note that most of the functionalities except the Login and Google sign-in
+    buttons are not usable, except perhaps the password-to-text checkbox. -->
+    <input placeholder="Username"></input>
+    <br>
+    <input type="password" placeholder="Password" id="passInput">
+    <br>
+    <div style="font-size: 8pt;" id="signIn">
+        <input type="checkbox" onclick="showPassword()" id="showPass">
+        <label for="showPass">Show Password</label>
+        <br>
+        <a href="home.html"><button>Login</button></a>
+        <button>Make New Account</button>
+        <button>Forgot Password</button>
+        <br></br>
+        <div class="g-signin2" data-width="200" data-height="40" data-longtitle="true"></div>
+        <a href="index.html"><button id="SignOut" onclick="signOut();">Sign Out from Google</button></a>
+        <p>If you are already signed in through your Google account, click on the Google button to proceed.</p>
+    </div>
+    <br></br>
+
+<!-- Brief description of what the website does. -->
+    <p id="description">Upload an audio file of you playing, and we'll give you a toxicity score based on what you say.
+        Or take our quiz, which will not only tell you how toxic you are, but how sensitive you are to others.</p>
+
+</body>
+<script>
+// This is the javascript within the file that authenticates the user if that person
+// successfully logs in through the Google Sign-In button.
+    function init() {
+      gapi.load('auth2', function() {
+        gapi.auth2.getAuthInstance({
+          apiKey: 'AIzaSyAMR0Wj2ZRzX1k--ioZV_nxIt_bO5DaLFY',
+          clientId: '180518226106-btugctlhvrq5u3argos1st6jb7b2c05g.apps.googleusercontent.com',
+          fetch_basic_profile: false,
+          scope: 'profile email',
+          ux_mode: 'redirect',
+          redirect_uri: 'http://localhost:3000/home.html'
+        });
+      }
+    )}
+
+    function attachSignin(element) {
+      console.log(element.id);
+      auth2.attachClickHandler(element, {},
+          function(googleUser) {
+            document.getElementById('name').innerText = "Signed in: " +
+                googleUser.getBasicProfile().getName();
+          }, function(error) {
+            alert(JSON.stringify(error, undefined, 2));
+          });
+    }
+</script>
+<script src="https://apis.google.com/js/platform.js?onload=init" async defer></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="application/javascript" src="js_files/login.js"></script>
+</html>

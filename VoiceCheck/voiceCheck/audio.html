@@ -1,0 +1,138 @@
+<!-- This is the page for users to upload their audio files and get analysis back
+on their toxicity.  -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Voice Check</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+
+<body>
+    <div style="text-align: center;">
+      <br></br>
+      <h1>Stream Your Voice</h1>
+      <form class="fileupload" action="upload" method="post" enctype="multipart/form-data">
+        <p>(Work in progress. Limited functionality - upload audio instead. Must be .mp3 format!)</p>
+        <input type="file" name="upfile" value="">
+        <input type="submit">
+      </form>
+      <br>
+      <button id="startJob">Start</button>
+      <button id="getTranscript">Get Transcription</button>
+      <button id="NLPButton">Analyze Transcription</button>
+      <br></br>
+      <div id="status"></div>
+      <div id="results"></div>
+      <div id="emotionPie"></div>
+      <a href="home.html"><button>Return to Home Page</button></a>
+      </p>
+    </div>
+</body>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="application/javascript" src="js_files/quizQuestions.js"></script>
+<script type="text/javascript">
+  //Initializes the listeners for the page that will handle the ajax interactions
+  //that send and recieve data to and from the backend as well as update the page
+  //with new elements based on returned data. (See server.js for more details on ajax interactions)
+    $(document).ready(() => {
+        $('#NLPButton').hide();
+        //When clicking this button the server returns data from the NLP API which
+        //is fed into plotly, generating the displayed chart and printing the data in
+        //html on the page.
+        $('#NLPButton').click(() => {
+            $.ajax({
+              url: 'audio',
+              type: 'GET',
+              dataType : 'json',
+              success: (data) => {
+                console.log('You received some data!', data);
+                $('#status').empty();
+                $('#results').empty();
+                //console.log(data.transcript);
+                $('#results').append((JSON.stringify(data.transcript, null, 2)));
+                console.log((JSON.stringify(data.transcript, null, 2)));
+                var total, sad_percent, joy_percent, disgust_percent, fear_percent, anger_percent;
+                for(let key in data){
+                  if(key == "sentiment"){
+                    $('#results').append('<div class="data"><h2>' +  "Sentiment" +'</h2></div>');
+                    $('#results').append('<div class="data"><h4>' + 'Score: ' + data.sentiment.document.score +'</h4></div>');
+                      $('#results').append('<div class="data"><h4>' + 'Label: ' + data.sentiment.document.label +'</h4></div>');
+                  }
+                  if(key == "emotion"){
+                      $('#results').append('<div class="data"><h2>' + "Emotion" +'</h2></div>');
+                      $('#results').append('<div class="data"><h4>' + 'Sadness: ' + data.emotion.document.emotion.sadness +'</h4></div>');
+                      $('#results').append('<div class="data"><h4>' + 'Joy: ' + data.emotion.document.emotion.joy +'</h4></div>');
+                      $('#results').append('<div class="data"><h4>' + 'Disgust: ' + data.emotion.document.emotion.disgust +'</h4></div>');
+                      $('#results').append('<div class="data"><h4>' + 'Fear: ' + data.emotion.document.emotion.fear +'</h4></div>');
+                      $('#results').append('<div class="data"><h4>' + 'Anger: ' + data.emotion.document.emotion.anger +'</h4></div>');
+                      total = (data.emotion.document.emotion.sadness + data.emotion.document.emotion.joy + data.emotion.document.emotion.disgust + data.emotion.document.emotion.fear + data.emotion.document.emotion.anger);
+                      sad_percent = (data.emotion.document.emotion.sadness/total);
+                      joy_percent = (data.emotion.document.emotion.joy/total);
+                      disgust_percent = (data.emotion.document.emotion.disgust/total);
+                      fear_percent = (data.emotion.document.emotion.fear/total);
+                      anger_percent = (data.emotion.document.emotion.anger/total);
+                    }
+                  }
+                  var data = [{
+                    values: [sad_percent, joy_percent, disgust_percent, fear_percent, anger_percent],
+                    labels: ['Sadness', 'Joy', 'Disgust', 'Fear', 'Anger'],
+                    type: 'pie'
+                  }];
+
+                  var layout= {
+                    plot_bgcolor:"rgba(0,0,0,0)",
+                    paper_bgcolor:"rgba(0,0,0,0)",
+                    font: {
+                      family: "FiraSans-Regular",
+                      size: 18,
+                      color: "white"
+                    }
+                  }
+
+                  Plotly.newPlot('emotionPie', data, layout);
+                  }
+                })
+              });
+        $("form").submit(function(event) {
+            console.log('Successfully upload audio file!');
+            $("#status").html('Successfully upload audio file!');
+        });
+        $('#startJob').click(() => {
+            $.ajax({
+              // all URLs are relative to http://localhost:3000/
+              url: 'encode',
+              type: 'GET',
+              error: function(){
+                console.log('Failed to encode');
+                $("#status").html('Failed to encode, you haven\'t uploaded an audio file!');
+              },
+              success: (data) => {
+                console.log('Successfully submitted text!');
+                $("#NLPButton").hide();
+                $("#status").html('Job create a success!');
+              }
+            });
+          });
+
+          $('#getTranscript').click(() => {
+              $.ajax({
+                // all URLs are relative to http://localhost:3000/
+                url: 'transcribe',
+                type: 'GET',
+                error: function(){
+                  console.log('Failed to encode');
+                },
+                success: (data) => {
+                  console.log('Transcription complete');
+                  $("#status").html('"' + data + '"');
+                  $("#NLPButton").show();
+                }
+              });
+            });
+          });
+</script>
+</html>
